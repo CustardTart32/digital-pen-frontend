@@ -1,43 +1,98 @@
 import React from "react";
 import { useState } from "react";
-import { Grid, Typography } from "@material-ui/core";
+import { FormHelperText, Grid, Typography } from "@material-ui/core";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import FormControl from "@material-ui/core/FormControl";
+import SurveyButton from "./SurveyButton";
 
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
 import "../../styles/carousel_styles.css";
 import { Carousel } from "react-responsive-carousel";
 
+// Props:
+// Stage: (1-10)
+// idA/idB: tags for both ids
+// handleNext: Function to handle stage change
+// updateComparisonResponse: Fuctiono to update parent object of responses
 export default function Comparison(props) {
 	const [value, setValue] = useState("");
+	const [other, setOther] = useState("");
+	const [error, setError] = useState(false);
 
 	const handleChange = (event) => {
-		setValue(event.target.value);
+		if (event.target.value === props.idA) {
+			setValue(props.idA);
+			setOther(props.idB);
+		} else {
+			setValue(props.idB);
+			setOther(props.idA);
+		}
 	};
 
-	// Order: 0 <- first | 1 <- second
-	const getImage = (order) => {
-		if (props.ids.length === 0) {
-			return <div></div>;
+	const handleNext = () => {
+		if (value === "") {
+			setError(true);
 		} else {
-			return (
+			props.updateComparisonResponse(value, other);
+			props.handleNext();
+			setError(false);
+			setValue("");
+			setOther("");
+		}
+	};
+
+	const getCarousel = () => {
+		return (
+			<Carousel
+				width="90%"
+				showThumbs={false}
+				autoPlay={true}
+				interval={10000}
+				infiniteLoop={true}
+			>
 				<div>
 					<img
 						src={
 							require("../../assets/dataset_screenshots/" +
-								props.ids[props.stage * 2 - 2 + order] +
+								props.idA +
 								".png").default
 						}
 						alt=""
 					/>
-					<p className="legend">
-						{order === 0 ? "Submission A" : "Submission B"}
-					</p>
+					<p className="legend">Submission A</p>
 				</div>
-			);
-		}
+				<div>
+					<img
+						src={
+							require("../../assets/dataset_screenshots/" +
+								props.idB +
+								".png").default
+						}
+						alt=""
+					/>
+					<p className="legend">Submission B</p>
+				</div>
+			</Carousel>
+		);
+	};
+
+	const renderRadioButtons = () => {
+		return (
+			<>
+				<FormControlLabel
+					value={props.idA}
+					control={<Radio />}
+					label="Submission A"
+				/>
+				<FormControlLabel
+					value={props.idB}
+					control={<Radio />}
+					label="Submission B"
+				/>
+			</>
+		);
 	};
 
 	return (
@@ -57,18 +112,21 @@ export default function Comparison(props) {
 						onChange={handleChange}
 						row
 					>
-						<FormControlLabel
-							value="a"
-							control={<Radio />}
-							label="Submission A"
-						/>
-						<FormControlLabel
-							value="b"
-							control={<Radio />}
-							label="Submission B"
-						/>
+						{renderRadioButtons()}
 					</RadioGroup>
+					<FormHelperText
+						style={{
+							textAlign: "center",
+							color: "red",
+							visibility: error ? "visible" : "hidden",
+						}}
+					>
+						Please select an option
+					</FormHelperText>
 				</FormControl>
+			</Grid>
+			<Grid item>
+				<SurveyButton stage={props.stage} handleNext={handleNext} />
 			</Grid>
 			<Grid
 				container
@@ -77,19 +135,8 @@ export default function Comparison(props) {
 				alignItems="center"
 				justifyContent="center"
 			>
-				<Grid item>
-					<Carousel
-						width="90%"
-						showThumbs={false}
-						autoPlay={true}
-						interval={10000}
-						infiniteLoop={true}
-					>
-						{getImage(0)}
-						{getImage(1)}
-					</Carousel>
-				</Grid>
-			</Grid>{" "}
+				<Grid item>{getCarousel()}</Grid>
+			</Grid>
 		</>
 	);
 }
