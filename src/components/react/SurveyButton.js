@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import Fab from "@material-ui/core/Fab";
 
 // Props
@@ -9,13 +8,9 @@ export default function SurveyButton(props) {
 	const renderButton = () => {
 		if (props.stage === 10) {
 			return (
-				<Link
-					to="/"
-					style={{ textDecoration: "none", color: "inherit" }}
-					onClick={props.handleSubmit}
-				>
-					<Fab variant="extended">Finish and Submit</Fab>
-				</Link>
+				<Fab variant="extended" onClick={props.handleSubmit}>
+					Finish and Submit
+				</Fab>
 			);
 		} else {
 			return (

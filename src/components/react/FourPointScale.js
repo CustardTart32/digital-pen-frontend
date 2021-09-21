@@ -5,19 +5,26 @@ import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import FormControl from "@material-ui/core/FormControl";
+import { FormHelperText } from "@material-ui/core";
 import HelpIcon from "@material-ui/icons/Help";
 
 import SurveyButton from "./SurveyButton";
 import FourPointModal from "./FourPointModal";
 
+// Props
+// id: Id of image to show
+// updateFourPointResponse: function to update data struct that stores user responses
+// handleNext: transitions to next question
+// handleSubmit: submits survey responses
 export default function FourPointScale(props) {
 	// Scale
 	// 1 -> Illegible
 	// 2 -> Some words legible
 	// 3 -> Most words legible
 	// 4 -> Legible
-	const [value, setValue] = useState(0);
+	const [value, setValue] = useState("");
 	const [open, setOpen] = useState(false);
+	const [error, setError] = useState(false);
 
 	const handleOpen = () => {
 		setOpen(true);
@@ -32,14 +39,23 @@ export default function FourPointScale(props) {
 	};
 
 	const handleNext = () => {
-		props.updateFourPointResponse(props.id, value);
-		props.handleNext();
-		setValue(0);
+		if (value === "") {
+			setError(true);
+		} else {
+			props.updateFourPointResponse(props.id, value);
+			props.handleNext();
+			setError(false);
+			setValue("");
+		}
 	};
 
 	const handleSubmit = () => {
-		props.updateFourPointResponse(props.id, value);
-		props.handleSubmit();
+		if (value === "") {
+			setError(true);
+		} else {
+			props.updateFourPointResponse(props.id, value);
+			props.handleSubmit();
+		}
 	};
 
 	return (
@@ -104,7 +120,23 @@ export default function FourPointScale(props) {
 							label="Legible"
 						/>
 					</RadioGroup>
+					<FormHelperText
+						style={{
+							textAlign: "center",
+							color: "red",
+							visibility: error ? "visible" : "hidden",
+						}}
+					>
+						Please select an option
+					</FormHelperText>
 				</FormControl>
+			</Grid>
+			<Grid item>
+				<SurveyButton
+					stage={props.stage}
+					handleNext={handleNext}
+					handleSubmit={handleSubmit}
+				/>
 			</Grid>
 			<Grid
 				container
@@ -121,13 +153,6 @@ export default function FourPointScale(props) {
 					}
 					alt=""
 					width="95%"
-				/>
-			</Grid>
-			<Grid item>
-				<SurveyButton
-					stage={props.stage}
-					handleNext={handleNext}
-					handleSubmit={handleSubmit}
 				/>
 			</Grid>
 		</>
