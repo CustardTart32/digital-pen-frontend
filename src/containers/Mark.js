@@ -5,8 +5,12 @@ import NavBarMark from "../components/react/NavBarMark";
 import Comparison from "../components/react/Comparision";
 import FourPointScale from "../components/react/FourPointScale";
 import { useCallback } from "react";
+import { Backdrop, CircularProgress } from "@material-ui/core";
+
+import { useHistory } from "react-router";
 
 import fire from "../config/firebase";
+import firebase from "firebase/app";
 
 const db = fire.firestore();
 
@@ -16,14 +20,21 @@ const useStyles = makeStyles((theme) => ({
 		width: "100%",
 	},
 	toolbar: theme.mixins.toolbar,
+	backdrop: {
+		zIndex: theme.zIndex.drawer + 1,
+		color: "#fff",
+	},
 }));
 
 export default function Mark() {
 	const theme = useTheme();
 	const classes = useStyles(theme);
+	const history = useHistory();
 
 	// Stage goes from (1->10)
 	const [stage, setStage] = useState(1);
+
+	const [submitting, setSubmitting] = useState(false);
 
 	// Data structures to store ids and corresponding survey responses
 	// ids -> [array of ids]
@@ -36,8 +47,48 @@ export default function Mark() {
 
 	const handleSubmit = () => {
 		console.log("Submitting");
-		console.log(comparisonReponses);
-		console.log(fourPointResponses);
+		setSubmitting(true);
+		updateDatabase("dataset_responses");
+	};
+
+	const updateDatabase = (collection) => {
+		var batch = db.batch();
+
+		for (let [key, value] of Object.entries(comparisonReponses)) {
+			let docRef = db.collection(collection).doc(key);
+
+			batch.update(docRef, {
+				yea: firebase.firestore.FieldValue.increment(value["yea"]),
+				nay: firebase.firestore.FieldValue.increment(value["nay"]),
+			});
+		}
+
+		for (let [key, value] of Object.entries(fourPointResponses)) {
+			let docRef = db.collection(collection).doc(key);
+
+			batch.update(docRef, {
+				1: firebase.firestore.FieldValue.increment(value["1"]),
+				2: firebase.firestore.FieldValue.increment(value["2"]),
+				3: firebase.firestore.FieldValue.increment(value["3"]),
+				4: firebase.firestore.FieldValue.increment(value["4"]),
+			});
+		}
+
+		batch
+			.commit()
+			.then(() => {
+				console.log("Successfully updated");
+				setSubmitting(false);
+				history.push("/");
+				history.go(0);
+			})
+			.catch((e) => {
+				alert("Error when uploading survey data");
+				console.log(e);
+				setSubmitting(false);
+				history.push("/");
+				history.go(0);
+			});
 	};
 
 	const handleNext = () => {
@@ -279,6 +330,9 @@ export default function Mark() {
 	return (
 		<>
 			<NavBarMark progress={stage * 10} />
+			<Backdrop className={classes.backdrop} open={submitting}>
+				<CircularProgress color="inherit" />
+			</Backdrop>
 			<Grid
 				container
 				direction="column"
