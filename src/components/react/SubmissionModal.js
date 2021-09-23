@@ -3,7 +3,7 @@ import { makeStyles, useTheme } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
 import Fade from "@material-ui/core/Fade";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 import { Button, Grid } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
@@ -48,14 +48,13 @@ export default function SubmissionModal(props) {
 					justifyContent="space-evenly"
 					alignItems="center"
 				>
-					<Link
-						to="/mark"
-						style={{ textDecoration: "none", color: "inherit" }}
+					<Button
+						variant="contained"
+						color="primary"
+						href="/mark/force"
 					>
-						<Button variant="contained" color="primary">
-							Start Marking
-						</Button>
-					</Link>
+						Start Marking
+					</Button>
 					<Button variant="contained" color="secondary" href="/">
 						Back to Home
 					</Button>

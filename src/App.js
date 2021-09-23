@@ -16,7 +16,7 @@ import ConsentForm from "./containers/ConsentForm";
 import fire from "./config/firebase";
 
 export default function App() {
-	const [uid, setUid] = useState(null);
+	const [uid, setUid] = useState(fire.auth().currentUser);
 
 	useEffect(() => {
 		const unsubscribe = fire.auth().onAuthStateChanged((user) => {
@@ -32,11 +32,15 @@ export default function App() {
 		};
 	}, []);
 
+	// TODO: If possible, find a better way to solve the unscrollable survey rather than a hard refresh of the page
 	return (
 		<Router>
 			<Switch>
 				<Route path="/canvas/intro">
 					{uid == null ? <Redirect to="/" /> : <CanvasIntro />}
+				</Route>
+				<Route path="/mark/force">
+					<Mark />
 				</Route>
 				<Route path="/mark">
 					{uid === null ? <Redirect to="/" /> : <Mark />}
