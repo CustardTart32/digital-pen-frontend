@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
 import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Redirect,
+	BrowserRouter as Router,
+	Switch,
+	Route,
+	Redirect,
 } from "react-router-dom";
 import CanvasPractice from "./containers/CanvasPractice";
 import CanvasTimed from "./containers/CanvasTimed";
@@ -16,44 +16,63 @@ import ConsentForm from "./containers/ConsentForm";
 import fire from "./config/firebase";
 
 export default function App() {
-  const [uid, setUid] = useState(null);
+	const [uid, setUid] = useState(null);
 
-  useEffect(() => {
-    const unsubscribe = fire.auth().onAuthStateChanged((user) => {
-      if (user) {
-        setUid(user.uid);
-      } else {
-        setUid(null);
-      }
-    });
+	useEffect(() => {
+		const unsubscribe = fire.auth().onAuthStateChanged((user) => {
+			if (user) {
+				setUid(user.uid);
+			} else {
+				setUid(null);
+			}
+		});
 
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+		return () => {
+			unsubscribe();
+		};
+	}, []);
 
-  return (
-    <Router>
-      <Switch>
-        <Route path="/canvas/intro">
-          {uid == null ? <Redirect to="/" /> : <CanvasIntro />}
-        </Route>
-        <Route path="/mark">
-          <Mark />
-        </Route>
-        <Route path="/canvas/practice">
-          {uid === null ? <Redirect to="/" /> : <CanvasPractice uid={uid} />}
-        </Route>
-        <Route path="/canvas/test">
-          {uid === null ? <Redirect to="/" /> : <CanvasTimed uid={uid} />}
-        </Route>
-        <Route path="/consent">
-          {uid === null ? <ConsentForm /> : <Redirect to="/canvas/intro" />}
-        </Route>
-        <Route path="/" exact>
-          <Home />
-        </Route>
-      </Switch>
-    </Router>
-  );
+	return (
+		<Router>
+			<Switch>
+				<Route path="/canvas/intro">
+					{uid == null ? <Redirect to="/" /> : <CanvasIntro />}
+				</Route>
+				<Route path="/mark">
+					{uid === null ? <Redirect to="/" /> : <Mark />}
+				</Route>
+				<Route path="/canvas/practice">
+					{uid === null ? (
+						<Redirect to="/" />
+					) : (
+						<CanvasPractice uid={uid} />
+					)}
+				</Route>
+				<Route path="/canvas/test">
+					{uid === null ? (
+						<Redirect to="/" />
+					) : (
+						<CanvasTimed uid={uid} />
+					)}
+				</Route>
+				<Route path="/consent/canvas">
+					{uid === null ? (
+						<ConsentForm link={"/canvas/intro"} />
+					) : (
+						<Redirect to="/canvas/intro" />
+					)}
+				</Route>
+				<Route path="/consent/mark">
+					{uid === null ? (
+						<ConsentForm link={"/mark"} />
+					) : (
+						<Redirect to="/mark" />
+					)}
+				</Route>
+				<Route path="/" exact>
+					<Home />
+				</Route>
+			</Switch>
+		</Router>
+	);
 }

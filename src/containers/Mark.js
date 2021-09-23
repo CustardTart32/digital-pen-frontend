@@ -101,7 +101,7 @@ export default function Mark() {
 		newDict[yeaVote]["yea"] += 1;
 		newDict[nayVote]["nay"] += 1;
 
-		console.log(newDict);
+		// console.log(newDict);
 
 		setComparisonReponses(newDict);
 	};
@@ -112,7 +112,7 @@ export default function Mark() {
 
 		newDict[id][parseInt(score)] += 1;
 
-		console.log(newDict);
+		// console.log(newDict);
 
 		setFourPointResponses(newDict);
 	};
