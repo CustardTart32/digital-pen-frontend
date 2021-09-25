@@ -42,7 +42,7 @@ export default function TimedInstructionsModal(props) {
 					</li>
 					<li>
 						If you make a mistake, tap the reset button on the top
-						right corner to clear the canvas or refresh this page.
+						right corner to clear the canvas.
 					</li>
 					<li>
 						{" "}
