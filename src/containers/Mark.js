@@ -230,17 +230,18 @@ export default function Mark() {
 	}, []);
 
 	// Hook to generate 5 random docs with 5 alternate docs as well for comparison survey questions
+	// Initialises the state of the comparison responses as well
 	useEffect(() => {
-		const getAlternateDocs = async () => {
-			let doc_ids = await getRandomDocs("datasets", "__name__", 5).catch(
+		const getAlternateDocs = async (collection, field) => {
+			let doc_ids = await getRandomDocs(collection, field, 5).catch(
 				(error) => {
 					alert(error);
 				}
 			);
 
 			let other_ids = await getOtherDocs(
-				"datasets",
-				"__name__",
+				collection,
+				field,
 				doc_ids
 			).catch((error) => {
 				alert(error);
@@ -253,11 +254,11 @@ export default function Mark() {
 			}
 
 			// Only needed if the doc id is not the thing we need
-			{
+			if (collection === "datasets") {
 				let promises = [];
 
 				comparisonIds.forEach((id) => {
-					promises.push(getDocField("datasets", id, "name"));
+					promises.push(getDocField(collection, id, "name"));
 				});
 
 				comparisonIds = await Promise.all(promises).catch((err) => {
@@ -278,25 +279,29 @@ export default function Mark() {
 			setComparisonReponses(responses);
 		};
 
-		getAlternateDocs();
+		getAlternateDocs("datasets", "__name__");
 	}, [getRandomDocs, getOtherDocs]);
 
 	// Hook to generate 5 random docs for 4 point scale questions
 	useEffect(() => {
-		getRandomDocs("datasets", "name", 5)
-			.then((ids) => {
-				console.log("4 point ids", ids);
-				setFourPointIds(ids);
+		const getIds = async (collection, field) => {
+			let ids = await getRandomDocs(collection, field, 5).catch((error) =>
+				alert(error)
+			);
 
-				var responses = {};
+			console.log("4 point ids", ids);
+			setFourPointIds(ids);
 
-				ids.forEach((id) => {
-					responses[id] = { 1: 0, 2: 0, 3: 0, 4: 0 };
-				});
+			var responses = {};
 
-				setFourPointResponses(responses);
-			})
-			.catch((error) => alert(error));
+			ids.forEach((id) => {
+				responses[id] = { 1: 0, 2: 0, 3: 0, 4: 0 };
+			});
+
+			setFourPointResponses(responses);
+		};
+
+		getIds("datasets", "name");
 	}, [getRandomDocs]);
 
 	const renderSurveyQuestion = () => {
