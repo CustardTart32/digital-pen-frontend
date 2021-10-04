@@ -230,6 +230,7 @@ export default function Mark() {
 	}, []);
 
 	// Hook to generate 5 random docs with 5 alternate docs as well for comparison survey questions
+	// Takes in a collection and field to query on
 	// Initialises the state of the comparison responses as well
 	useEffect(() => {
 		const getAlternateDocs = async (collection, field) => {
@@ -279,10 +280,11 @@ export default function Mark() {
 			setComparisonReponses(responses);
 		};
 
-		getAlternateDocs("datasets", "__name__");
+		getAlternateDocs("ink", "__name__");
 	}, [getRandomDocs, getOtherDocs]);
 
 	// Hook to generate 5 random docs for 4 point scale questions
+	// Takes in a collection and field to query on
 	useEffect(() => {
 		const getIds = async (collection, field) => {
 			let ids = await getRandomDocs(collection, field, 5).catch((error) =>
@@ -301,7 +303,7 @@ export default function Mark() {
 			setFourPointResponses(responses);
 		};
 
-		getIds("datasets", "name");
+		getIds("ink", "__name__");
 	}, [getRandomDocs]);
 
 	const renderSurveyQuestion = () => {

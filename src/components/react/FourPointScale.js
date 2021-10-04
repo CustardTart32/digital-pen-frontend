@@ -1,5 +1,5 @@
 import { Grid, IconButton, Typography } from "@material-ui/core";
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import { useState } from "react";
 import Radio from "@material-ui/core/Radio";
 import RadioGroup from "@material-ui/core/RadioGroup";
@@ -10,9 +10,13 @@ import HelpIcon from "@material-ui/icons/Help";
 
 import SurveyButton from "./SurveyButton";
 import FourPointModal from "./FourPointModal";
+import LoadingCircle from "./LoadingCircle";
+
+import fire from "../../config/firebase";
+const storage = fire.storage();
 
 // Props
-// id: Id of image to show
+// id: Id of image to show (if id.length > 5, we need to download from firebase)
 // updateFourPointResponse: function to update data struct that stores user responses
 // handleNext: transitions to next question
 // handleSubmit: submits survey responses
@@ -25,6 +29,7 @@ export default function FourPointScale(props) {
 	const [value, setValue] = useState("");
 	const [open, setOpen] = useState(false);
 	const [error, setError] = useState(false);
+	const [url, setUrl] = useState(null);
 
 	const handleOpen = () => {
 		setOpen(true);
@@ -32,6 +37,52 @@ export default function FourPointScale(props) {
 
 	const handleClose = () => {
 		setOpen(false);
+	};
+
+	const requiresDownload = useCallback(() => {
+		return props.id.length > 5;
+	}, [props.id]);
+
+	useEffect(() => {
+		if (requiresDownload()) {
+			const getURL = (id) => {
+				var pathReference = storage.ref("inkImages/" + id + ".png");
+
+				return pathReference.getDownloadURL();
+			};
+
+			getURL(props.id)
+				.then((url) => {
+					console.log("URL of id:", url);
+					setUrl(url);
+				})
+				.catch((err) => {
+					console.log(err.message);
+					setUrl(null);
+				});
+		}
+	}, [props.id, requiresDownload]);
+
+	const renderImage = () => {
+		if (requiresDownload()) {
+			if (url === null) {
+				return <LoadingCircle />;
+			} else {
+				return <img src={url} alt="" width="95%" />;
+			}
+		} else {
+			return (
+				<img
+					src={
+						require("../../assets/dataset_screenshots/" +
+							props.id +
+							".png").default
+					}
+					alt=""
+					width="95%"
+				/>
+			);
+		}
 	};
 
 	const handleChange = (event) => {
@@ -145,15 +196,7 @@ export default function FourPointScale(props) {
 				alignItems="center"
 				justifyContent="center"
 			>
-				<img
-					src={
-						require("../../assets/dataset_screenshots/" +
-							props.id +
-							".png").default
-					}
-					alt=""
-					width="95%"
-				/>
+				{renderImage()}
 			</Grid>
 		</>
 	);
