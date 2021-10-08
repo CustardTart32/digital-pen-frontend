@@ -223,35 +223,48 @@ export var handleSubmit = async (user, setSubmissionStatus, setError) => {
 	// Select canvas attribute from DOM and generate a BASE64 img representation
 	var canvas = document.getElementById("drawingCanvas");
 	var img = canvas.toDataURL("image/png");
-	let db_ref = db.collection("ink").doc();
-	var imgRef = storageRef.child("inkImages/" + db_ref.id + ".png");
 
-	// try {
-	// 	await db_ref.set({ x: xVals, y: yVals, t: tVals, p: pVals });
-	// 	console.log("Uploaded digital ink");
-	// 	await imgRef.putString(img, "data_url");
-	// 	console.log("Uploaded a data_url string!");
+	try {
+		// Upload ink to database
+		let db_ref = db.collection("ink").doc();
+		await db_ref.set({ x: xVals, y: yVals, t: tVals, p: pVals });
+		console.log("Uploaded digital ink");
 
-	// 	// Link db_ref to user
-	// 	let user_ref = db.collection("user_docs").doc(user);
-	// 	await user_ref.update({
-	// 		docs: firebase.firestore.FieldValue.arrayUnion(db_ref.id),
-	// 	});
-	// 	console.log("Updated user references");
-	// 	setSubmissionStatus("submitted");
-	// 	setError("");
-	// } catch (err) {
-	// 	setSubmissionStatus("submitted");
-	// 	setError("Error uploading results");
-	// 	console.log(err);
-	// }
+		var imgRef = storageRef.child("inkImages/" + db_ref.id + ".png");
+		await imgRef.putString(img, "data_url");
+		console.log("Uploaded a data_url string!");
 
+		// Link db_ref to user
+		let user_ref = db.collection("user_docs").doc(user);
+		await user_ref.update({
+			docs: firebase.firestore.FieldValue.arrayUnion(db_ref.id),
+		});
+		console.log("Updated user references");
+
+		// Initialise data structure to store responses to user submisisons
+		let response_ref = db.collection("user_responses").doc(db_ref.id);
+		await response_ref.set({
+			yea: 0,
+			nay: 0,
+			1: 0,
+			2: 0,
+			3: 0,
+			4: 0,
+		});
+		console.log("Initialised survey response data structure");
+
+		setSubmissionStatus("submitted");
+		setError("");
+	} catch (err) {
+		setSubmissionStatus("submitted");
+		setError("Error uploading results");
+		console.log(err);
+	}
+
+	// Code for debug purposes
+	// console.log("Updated user references");
 	// setSubmissionStatus("submitted");
-	// setError("Error uploading results");
-
-	console.log("Updated user references");
-	setSubmissionStatus("submitted");
-	setError("");
+	// setError("");
 };
 
 export var handleReset = () => {
