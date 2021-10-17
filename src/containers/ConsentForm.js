@@ -1,6 +1,6 @@
 import React from "react";
 import { useState } from "react";
-import { Button, Grid, TextField, Typography } from "@material-ui/core";
+import { Button, Grid, Typography } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import Checkbox from "@material-ui/core/Checkbox";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
@@ -35,7 +35,6 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ConsentForm(props) {
 	const [checked, setChecked] = useState(false);
-	const [name, setName] = useState("");
 	const [submitted, setSubmitted] = useState(false);
 	const [progress, setProgress] = useState("none");
 
@@ -56,10 +55,6 @@ export default function ConsentForm(props) {
 			console.log(ret.user.uid);
 
 			try {
-				await db.collection("users").doc(ret.user.uid).set({
-					name: name,
-				});
-
 				await db.collection("user_docs").doc(ret.user.uid).set({
 					docs: [],
 				});
@@ -109,7 +104,7 @@ export default function ConsentForm(props) {
 							<Typography>
 								I have read the{" "}
 								<Link
-									href="https://docs.google.com/document/d/1TTzXbMMUc5e_O79Duv9vBxhsqAKb_Ne-/edit?usp=sharing&ouid=103309654343154438571&rtpof=true&sd=true"
+									href="https://docs.google.com/document/d/1fCmtzHs3qebfjPYSdBTGJjeFTePw8ocW/edit?usp=sharing&ouid=103309654343154438571&rtpof=true&sd=true"
 									target="_blank"
 								>
 									Participant Information Sheet
@@ -171,7 +166,7 @@ export default function ConsentForm(props) {
 												a copy of this consent form
 												using
 												<Link
-													href="https://docs.google.com/document/d/1TTzXbMMUc5e_O79Duv9vBxhsqAKb_Ne-/edit?usp=sharing&ouid=103309654343154438571&rtpof=true&sd=true"
+													href="https://docs.google.com/document/d/1fCmtzHs3qebfjPYSdBTGJjeFTePw8ocW/edit?usp=sharing&ouid=103309654343154438571&rtpof=true&sd=true"
 													target="_blank"
 												>
 													{" "}
@@ -195,17 +190,6 @@ export default function ConsentForm(props) {
 							) : (
 								<></>
 							)}
-							<Grid item className={classes.form}>
-								<TextField
-									label="Name"
-									value={name}
-									required
-									onChange={(e) => {
-										setName(e.target.value);
-									}}
-									className={classes.form}
-								/>
-							</Grid>
 							<Grid item>
 								<Button
 									variant="contained"

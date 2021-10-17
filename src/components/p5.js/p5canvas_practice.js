@@ -125,7 +125,7 @@ export var draw_drawing = (p) => {
 		penX = xFilter.filter(p.mouseX, p.millis());
 		penY = yFilter.filter(p.mouseY, p.millis());
 
-		// console.log(penX, penY);
+		// console.log(p.millis());
 
 		// What to do on the first frame of the stroke
 		if (isDrawingJustStarted) {
