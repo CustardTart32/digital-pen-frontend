@@ -241,6 +241,20 @@ export var handleSubmit = async (user, setSubmissionStatus, setError) => {
 		});
 		console.log("Updated user references");
 
+		// Check if a count exists in the user_responses collection
+		let querySnapshot = await db
+			.collection("user_responses")
+			.where("__name__", "==", "count")
+			.get();
+		let countRef = db.collection("user_responses").doc("count");
+
+		// If not, initialise count to 0
+		if (querySnapshot.empty) {
+			await countRef.set({
+				count: 0,
+			});
+		}
+
 		// Initialise data structure to store responses to user submisisons
 		let response_ref = db.collection("user_responses").doc(db_ref.id);
 		await response_ref.set({
@@ -251,6 +265,7 @@ export var handleSubmit = async (user, setSubmissionStatus, setError) => {
 			3: 0,
 			4: 0,
 		});
+
 		console.log("Initialised survey response data structure");
 
 		setSubmissionStatus("submitted");

@@ -171,11 +171,7 @@ export default function Mark() {
 			});
 		}
 
-		if (field === "__name__") {
-			return querySnapshot.docs[0].id;
-		} else {
-			return querySnapshot.docs[0].get(field);
-		}
+		return querySnapshot.docs[0].id;
 	};
 
 	// Get a doc where the field does not equal the existing value and return the field of that doc
@@ -185,14 +181,14 @@ export default function Mark() {
 		let random = datasetsRef.doc().id;
 
 		let query_a = datasetsRef
+			.where("__name__", "!=", value)
 			.where("__name__", ">=", random)
-			.where(field, "!=", value)
 			.orderBy("__name__")
 			.limit(1);
 
 		let query_b = datasetsRef
+			.where("__name__", "!=", value)
 			.where("__name__", "<=", random)
-			.where(field, "!=", value)
 			.orderBy("__name__")
 			.limit(1);
 
@@ -206,11 +202,7 @@ export default function Mark() {
 			});
 		}
 
-		if (field === "__name__") {
-			return querySnapshot.docs[0].id;
-		} else {
-			return querySnapshot.docs[0].get(field);
-		}
+		return querySnapshot.docs[0].id;
 	};
 
 	// For a list of values, get an equal length list of docs values where their value
@@ -223,7 +215,8 @@ export default function Mark() {
 		}
 
 		let otherValues = await Promise.all(promises).catch((e) => {
-			alert("Error getting random docs from database");
+			console.log(e);
+			alert("Error getting other docs from database");
 		});
 
 		return otherValues;
@@ -327,6 +320,19 @@ export default function Mark() {
 			let ids = await getRandomDocs(collection, field, 5).catch((error) =>
 				alert(error)
 			);
+
+			// Only needed if the doc id is not the thing we need
+			if (collection === "datasets") {
+				let promises = [];
+
+				ids.forEach((id) => {
+					promises.push(getDocField(collection, id, "name"));
+				});
+
+				ids = await Promise.all(promises).catch((err) => {
+					alert(err);
+				});
+			}
 
 			console.log("4 point ids", ids);
 			setFourPointIds(ids);
