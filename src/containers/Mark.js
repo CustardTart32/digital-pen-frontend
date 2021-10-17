@@ -33,8 +33,10 @@ export default function Mark() {
 
 	// Stage goes from (1->10)
 	const [stage, setStage] = useState(1);
-
 	const [submitting, setSubmitting] = useState(false);
+
+	// Variable that gets the number of ink submissions
+	const [submissions, setSubmissions] = useState(null);
 
 	// Data structures to store ids and corresponding survey responses
 	// ids -> [array of ids]
@@ -48,7 +50,14 @@ export default function Mark() {
 	const handleSubmit = () => {
 		console.log("Submitting");
 		setSubmitting(true);
-		updateDatabase("dataset_responses");
+
+		if (submissions !== null) {
+			if (submissions < 4) {
+				updateDatabase("dataset_responses");
+			} else {
+				updateDatabase("user_responses");
+			}
+		}
 	};
 
 	const updateDatabase = (collection) => {
@@ -73,6 +82,12 @@ export default function Mark() {
 				4: firebase.firestore.FieldValue.increment(value["4"]),
 			});
 		}
+
+		let countRef = db.collection(collection).doc("count");
+
+		batch.update(countRef, {
+			count: firebase.firestore.FieldValue.increment(1),
+		});
 
 		batch
 			.commit()
@@ -164,7 +179,7 @@ export default function Mark() {
 	};
 
 	// Get a doc where the field does not equal the existing value and return the field of that doc
-	// TODO: Only guarenteed to work when field == __name__ and more than 2 docs are in the collection
+	// TODO: Only guaranteed to work when field == __name__ and more than 2 docs are in the collection
 	const getOtherDoc = async (collection, field, value) => {
 		let datasetsRef = db.collection(collection);
 		let random = datasetsRef.doc().id;
@@ -229,6 +244,22 @@ export default function Mark() {
 		return randomIds;
 	}, []);
 
+	useEffect(() => {
+		// Get number of submissions
+		let db_ref = db.collection("ink");
+
+		db_ref
+			.get()
+			.then((querySnapshot) => {
+				console.log("Amount of submissions", querySnapshot.size);
+				setSubmissions(querySnapshot.size);
+			})
+			.catch((err) => {
+				console.log(err);
+				setSubmissions(0);
+			});
+	}, []);
+
 	// Hook to generate 5 random docs with 5 alternate docs as well for comparison survey questions
 	// Takes in a collection and field to query on
 	// Initialises the state of the comparison responses as well
@@ -280,8 +311,14 @@ export default function Mark() {
 			setComparisonReponses(responses);
 		};
 
-		getAlternateDocs("ink", "__name__");
-	}, [getRandomDocs, getOtherDocs]);
+		if (submissions !== null) {
+			if (submissions < 4) {
+				getAlternateDocs("datasets", "name");
+			} else {
+				getAlternateDocs("ink", "__name__");
+			}
+		}
+	}, [getRandomDocs, getOtherDocs, submissions]);
 
 	// Hook to generate 5 random docs for 4 point scale questions
 	// Takes in a collection and field to query on
@@ -303,8 +340,14 @@ export default function Mark() {
 			setFourPointResponses(responses);
 		};
 
-		getIds("ink", "__name__");
-	}, [getRandomDocs]);
+		if (submissions !== null) {
+			if (submissions < 4) {
+				getIds("datasets", "name");
+			} else {
+				getIds("ink", "__name__");
+			}
+		}
+	}, [getRandomDocs, submissions]);
 
 	const renderSurveyQuestion = () => {
 		if (comparisonIds.length === 0 || fourPointIds.length === 0) {
