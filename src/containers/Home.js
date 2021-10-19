@@ -42,7 +42,7 @@ export default function Home() {
 					style={{ textDecoration: "none", color: "inherit" }}
 				>
 					<Button variant="contained" color="primary">
-						Digital Canvas
+						Submit Your Handwriting
 					</Button>
 				</Link>
 			</Grid>
@@ -52,7 +52,7 @@ export default function Home() {
 					style={{ textDecoration: "none", color: "inherit" }}
 				>
 					<Button variant="contained" color="secondary">
-						Mark Submissions
+						Mark Handwriting Submissions
 					</Button>
 				</Link>
 			</Grid>
