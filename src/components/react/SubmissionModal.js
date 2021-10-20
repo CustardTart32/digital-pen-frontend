@@ -35,11 +35,11 @@ export default function SubmissionModal(props) {
 					Your handwriting was saved successfully
 				</h2>
 				<p id="transition-modal-description">
-					If you could provide your feedback on some user submitted
-					handwriting data, that would be great!!
+					If you could provide your feedback on some user submitted handwriting,
+					that would be great!!
 				</p>
 				<p id="transition-modal-description">
-					This should take 1-2 minutes tops.
+					This task should take approximately 1-2 minutes.
 				</p>
 				<Grid
 					container
@@ -47,11 +47,7 @@ export default function SubmissionModal(props) {
 					justifyContent="space-evenly"
 					alignItems="center"
 				>
-					<Button
-						variant="contained"
-						color="primary"
-						href="/mark/force"
-					>
+					<Button variant="contained" color="primary" href="/mark/force">
 						Start Marking
 					</Button>
 					<Button variant="contained" color="secondary" href="/">
