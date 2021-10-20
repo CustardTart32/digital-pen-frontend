@@ -51,7 +51,7 @@ export default function Home() {
 					to="/consent/mark"
 					style={{ textDecoration: "none", color: "inherit" }}
 				>
-					<Button variant="contained" color="secondary">
+					<Button variant="contained" color="primary">
 						Mark Handwriting Submissions
 					</Button>
 				</Link>
