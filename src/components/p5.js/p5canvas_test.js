@@ -264,6 +264,8 @@ export var handleSubmit = async (user, setSubmissionStatus, setError) => {
 			2: 0,
 			3: 0,
 			4: 0,
+			total_comparisons: 0,
+			total_four_point: 0,
 		});
 
 		console.log("Initialised survey response data structure");

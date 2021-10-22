@@ -69,6 +69,9 @@ export default function Mark() {
 			batch.update(docRef, {
 				yea: firebase.firestore.FieldValue.increment(value["yea"]),
 				nay: firebase.firestore.FieldValue.increment(value["nay"]),
+				total_comparisons: firebase.firestore.FieldValue.increment(
+					value["nay"] + value["yea"]
+				),
 			});
 		}
 
@@ -80,6 +83,9 @@ export default function Mark() {
 				2: firebase.firestore.FieldValue.increment(value["2"]),
 				3: firebase.firestore.FieldValue.increment(value["3"]),
 				4: firebase.firestore.FieldValue.increment(value["4"]),
+				total_four_point: firebase.firestore.FieldValue.increment(
+					value["1"] + value["2"] + value["3"] + value["4"]
+				),
 			});
 		}
 
