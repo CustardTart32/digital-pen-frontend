@@ -1,6 +1,7 @@
 import { OneEuroFilter } from "./oneEuroFilter";
 import fire from "../../config/firebase";
 import firebase from "firebase/app";
+
 var db = fire.firestore();
 var storage = fire.storage();
 var storageRef = storage.ref();
@@ -241,15 +242,13 @@ export var handleSubmit = async (user, setSubmissionStatus, setError) => {
 		});
 		console.log("Updated user references");
 
-		// Check if a count exists in the user_responses collection
-		let querySnapshot = await db
-			.collection("user_responses")
-			.where("__name__", "==", "count")
-			.get();
-		let countRef = db.collection("user_responses").doc("count");
+		// Check if a count exists in the collection
+		let countRef = db.collection("response_count").doc("count");
+		let doc = await countRef.get();
 
 		// If not, initialise count to 0
-		if (querySnapshot.empty) {
+		if (doc.exists === false) {
+			console.log("Initialising counter for user responses");
 			await countRef.set({
 				count: 0,
 			});

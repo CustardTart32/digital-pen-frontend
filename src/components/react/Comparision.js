@@ -64,7 +64,7 @@ export default function Comparison(props) {
 
 			getURL(props.idA)
 				.then((url) => {
-					console.log("URL of idA:", url);
+					// console.log("URL of idA:", url);
 					setUrlA(url);
 				})
 				.catch((err) => {
@@ -74,7 +74,7 @@ export default function Comparison(props) {
 
 			getURL(props.idB)
 				.then((url) => {
-					console.log("URL of idB:", url);
+					// console.log("URL of idB:", url);
 					setUrlB(url);
 				})
 				.catch((err) => {

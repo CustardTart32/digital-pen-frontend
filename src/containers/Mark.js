@@ -52,7 +52,7 @@ export default function Mark() {
 		setSubmitting(true);
 
 		if (submissions !== null) {
-			if (submissions < 4) {
+			if (submissions < 5) {
 				updateDatabase("dataset_responses");
 			} else {
 				updateDatabase("user_responses");
@@ -89,7 +89,13 @@ export default function Mark() {
 			});
 		}
 
-		let countRef = db.collection(collection).doc("count");
+		let countRef;
+
+		if (collection === "user_responses") {
+			countRef = db.collection("response_count").doc("count");
+		} else {
+			countRef = db.collection("dataset_count").doc("count");
+		}
 
 		batch.update(countRef, {
 			count: firebase.firestore.FieldValue.increment(1),
@@ -107,8 +113,8 @@ export default function Mark() {
 				alert("Error when uploading survey data");
 				console.log(e);
 				setSubmitting(false);
-				history.push("/");
-				history.go(0);
+				// history.push("/");
+				// history.go(0);
 			});
 	};
 
@@ -264,11 +270,30 @@ export default function Mark() {
 	// Initialises the state of the comparison responses as well
 	useEffect(() => {
 		const getAlternateDocs = async (collection, field) => {
-			let doc_ids = await getRandomDocs(collection, field, 5).catch(
-				(error) => {
-					alert(error);
-				}
-			);
+			let doc_ids;
+
+			if (collection === "datasets") {
+				doc_ids = await getRandomDocs(collection, field, 5).catch(
+					(error) => {
+						alert(error);
+					}
+				);
+			} else {
+				// Get 5 least used comparison ids
+				let querySnapshot = await db
+					.collection(collection)
+					.orderBy("total_comparisons")
+					.limit(5)
+					.get();
+
+				doc_ids = [];
+
+				querySnapshot.forEach(async (doc) => {
+					// doc.data() is never undefined for query doc snapshots
+					// console.log(doc.id, " => ", doc.data());
+					doc_ids.push(doc.id);
+				});
+			}
 
 			let other_ids = await getOtherDocs(
 				collection,
@@ -311,21 +336,39 @@ export default function Mark() {
 		};
 
 		if (submissions !== null) {
-			if (submissions < 4) {
+			if (submissions < 5) {
 				getAlternateDocs("datasets", "name");
 			} else {
-				getAlternateDocs("ink", "__name__");
+				getAlternateDocs("user_responses", "__name__");
 			}
 		}
 	}, [getRandomDocs, getOtherDocs, submissions]);
 
-	// Hook to generate 5 random docs for 4 point scale questions
-	// Takes in a collection and field to query on
+	// Hook to get the ink submissions for the 4 point scale
+	// When rendering dataset, randomly selects 5 images from the dataset
+	// When rendering images, selects 5 images with the least amount of responses
 	useEffect(() => {
 		const getIds = async (collection, field) => {
-			let ids = await getRandomDocs(collection, field, 5).catch((error) =>
-				alert(error)
-			);
+			let ids;
+
+			if (collection === "datasets") {
+				ids = await getRandomDocs(collection, field, 5).catch((error) =>
+					alert(error)
+				);
+			} else {
+				let querySnapshot = await db
+					.collection(collection)
+					.orderBy("total_four_point")
+					.limit(5)
+					.get();
+
+				ids = [];
+
+				querySnapshot.forEach(async (doc) => {
+					// doc.data() is never undefined for query doc snapshots
+					ids.push(doc.id);
+				});
+			}
 
 			// Only needed if the doc id is not the thing we need
 			if (collection === "datasets") {
@@ -353,13 +396,13 @@ export default function Mark() {
 		};
 
 		if (submissions !== null) {
-			if (submissions < 4) {
+			if (submissions < 5) {
 				getIds("datasets", "name");
 			} else {
-				getIds("ink", "__name__");
+				getIds("user_responses", "__name__");
 			}
 		}
-	}, [getRandomDocs, submissions]);
+	}, [submissions, getRandomDocs]);
 
 	const renderSurveyQuestion = () => {
 		if (comparisonIds.length === 0 || fourPointIds.length === 0) {

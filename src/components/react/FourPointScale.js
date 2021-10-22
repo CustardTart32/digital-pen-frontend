@@ -53,7 +53,7 @@ export default function FourPointScale(props) {
 
 			getURL(props.id)
 				.then((url) => {
-					console.log("URL of id:", url);
+					// console.log("URL of id:", url);
 					setUrl(url);
 				})
 				.catch((err) => {
