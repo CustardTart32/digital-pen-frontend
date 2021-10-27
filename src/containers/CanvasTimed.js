@@ -32,6 +32,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
+// Submission status: none -> outOfTime -> submitting -> submitted
 export default function CanvasTimed(props) {
 	const [submissionStatus, setSubmissionStatus] = useState("none");
 	const [error, setError] = useState("");
@@ -66,7 +67,8 @@ export default function CanvasTimed(props) {
 	// When time == 60, time does not increase change any more so handlesubmit is only invoked once
 	useEffect(() => {
 		if (time === 60 && tutOpen === false && submissionStatus === "none") {
-			handleSubmit();
+			// handleSubmit();
+			setSubmissionStatus("outOfTime");
 		}
 	}, [time, tutOpen, submissionStatus, handleSubmit]);
 
@@ -86,6 +88,7 @@ export default function CanvasTimed(props) {
 				error={error}
 				setSubmissionStatus={setSubmissionStatus}
 				handleErrorReset={handleErrorReset}
+				handleSubmit={handleSubmit}
 			/>
 			<TimedInstructionsModal
 				open={tutOpen}

@@ -23,6 +23,48 @@ export default function SubmissionModal(props) {
 	const theme = useTheme();
 	const classes = useStyles(theme);
 
+	function OutOfTime() {
+		return (
+			<Grid
+				container
+				direction="column"
+				justifyContent="center"
+				alignItems="center"
+			>
+				<h2 id="transition-modal-title">Your time is up</h2>
+				<p id="transition-modal-description">
+					If you made a mistake or did not complete the task, you may
+					redo the task by clicking on the reset button below.
+				</p>
+				<p id="transition-modal-description">
+					Otherwise, click the submit button to upload your
+					handwriting.
+				</p>
+				<Grid
+					container
+					direction="row"
+					justifyContent="space-evenly"
+					alignItems="center"
+				>
+					<Button
+						variant="contained"
+						color="primary"
+						onClick={props.handleSubmit}
+					>
+						Submit Handwriting
+					</Button>
+					<Button
+						variant="contained"
+						color="secondary"
+						onClick={props.handleErrorReset}
+					>
+						Reset Test
+					</Button>
+				</Grid>
+			</Grid>
+		);
+	}
+
 	function Success() {
 		return (
 			<Grid
@@ -32,11 +74,11 @@ export default function SubmissionModal(props) {
 				alignItems="center"
 			>
 				<h2 id="transition-modal-title">
-					Your handwriting was saved successfully
+					Your handwriting was submitted successfully
 				</h2>
 				<p id="transition-modal-description">
-					If you could provide your feedback on some user submitted handwriting,
-					that would be great!!
+					If you could provide your feedback on some user submitted
+					handwriting, that would be great!!
 				</p>
 				<p id="transition-modal-description">
 					This task should take approximately 1-2 minutes.
@@ -47,7 +89,11 @@ export default function SubmissionModal(props) {
 					justifyContent="space-evenly"
 					alignItems="center"
 				>
-					<Button variant="contained" color="primary" href="/mark/force">
+					<Button
+						variant="contained"
+						color="primary"
+						href="/mark/force"
+					>
 						Start Marking
 					</Button>
 					<Button variant="contained" color="secondary" href="/">
@@ -89,22 +135,40 @@ export default function SubmissionModal(props) {
 		);
 	}
 
+	const renderModalContents = () => {
+		if (props.submissionStatus === "submitted") {
+			if (props.error === "") {
+				return <Success />;
+			} else {
+				return <Failure />;
+			}
+		} else {
+			return <OutOfTime />;
+		}
+	};
+
 	return (
 		<Modal
 			aria-labelledby="transition-modal-title"
 			aria-describedby="transition-modal-description"
 			className={classes.modal}
-			open={props.submissionStatus === "submitted"}
+			open={
+				props.submissionStatus === "submitted" ||
+				props.submissionStatus === "outOfTime"
+			}
 			closeAfterTransition
 			BackdropComponent={Backdrop}
 			BackdropProps={{
 				timeout: 500,
 			}}
 		>
-			<Fade in={props.submissionStatus === "submitted"}>
-				<div className={classes.paper}>
-					{props.error === "" ? <Success /> : <Failure />}
-				</div>
+			<Fade
+				in={
+					props.submissionStatus === "submitted" ||
+					props.submissionStatus === "outOfTime"
+				}
+			>
+				<div className={classes.paper}>{renderModalContents()}</div>
 			</Fade>
 		</Modal>
 	);

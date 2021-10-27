@@ -278,9 +278,10 @@ export var handleSubmit = async (user, setSubmissionStatus, setError) => {
 	}
 
 	// Code for debug purposes
-	// console.log("Updated user references");
-	// setSubmissionStatus("submitted");
-	// setError("");
+	// setTimeout(() => {
+	// 	setSubmissionStatus("submitted");
+	// 	setError("");
+	// }, 5000);
 };
 
 export var handleReset = () => {
