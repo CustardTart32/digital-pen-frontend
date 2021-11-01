@@ -256,20 +256,20 @@ export default function Mark() {
 	}, []);
 
 	// Get number of submissions
-	useEffect(() => {
-		let db_ref = db.collection("ink");
+	// useEffect(() => {
+	// 	let db_ref = db.collection("ink");
 
-		db_ref
-			.get()
-			.then((querySnapshot) => {
-				console.log("Amount of submissions", querySnapshot.size);
-				setSubmissions(querySnapshot.size);
-			})
-			.catch((err) => {
-				console.log(err);
-				setSubmissions(0);
-			});
-	}, []);
+	// 	db_ref
+	// 		.get()
+	// 		.then((querySnapshot) => {
+	// 			console.log("Amount of submissions", querySnapshot.size);
+	// 			setSubmissions(querySnapshot.size);
+	// 		})
+	// 		.catch((err) => {
+	// 			console.log(err);
+	// 			setSubmissions(0);
+	// 		});
+	// }, []);
 
 	// Hook to generate 5 random docs with 5 alternate docs as well for comparison survey questions
 	// Takes in a collection and field to query on
