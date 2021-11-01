@@ -47,6 +47,66 @@ export default function Mark() {
 	const [fourPointIds, setFourPointIds] = useState([]);
 	const [fourPointResponses, setFourPointResponses] = useState({});
 
+	const getNRandomDatasetIds = useCallback((n) => {
+		const datasetIds = [
+			"001",
+			"001a",
+			"001b",
+			"001c",
+			"001d",
+			"001e",
+			"001f",
+			"001g",
+		];
+
+		// Shuffle array
+		const shuffled = datasetIds.sort(() => 0.5 - Math.random());
+
+		// Get sub-array of first n elements after shuffled
+		let selected = shuffled.slice(0, n);
+		return selected;
+	}, []);
+
+	const getOtherDatasetId = useCallback((id) => {
+		var datasetIds = [
+			"001",
+			"001a",
+			"001b",
+			"001c",
+			"001d",
+			"001e",
+			"001f",
+			"001g",
+		];
+
+		let index = datasetIds.indexOf(id);
+
+		if (index > -1) {
+			datasetIds.splice(index, 1);
+		}
+
+		// Shuffle array
+		const shuffled = datasetIds.sort(() => 0.5 - Math.random());
+
+		// Get sub-array of first n elements after shuffled
+		return shuffled[0];
+	}, []);
+
+	const getOtherDatasetIds = useCallback(
+		(ids) => {
+			let other = [];
+
+			ids.forEach((id) => {
+				let otherId = getOtherDatasetId(id);
+				other.push(otherId);
+			});
+
+			// Get sub-array of first n elements after shuffled
+			return other;
+		},
+		[getOtherDatasetId]
+	);
+
 	const handleSubmit = () => {
 		console.log("Submitting");
 		setSubmitting(true);
@@ -144,48 +204,6 @@ export default function Mark() {
 		setFourPointResponses(newDict);
 	};
 
-	// Gets a field for a particular doc
-	const getDocField = async (collection, id, field) => {
-		let docRef = db.collection(collection).doc(id);
-
-		let doc = await docRef.get().catch((error) => {
-			console.log("Error getting document:", error);
-		});
-
-		return doc.get(field);
-	};
-
-	// Generates a random doc id and then uses it to do a query on the collection via doc_id
-	// Guaranteed to work if there exists 1 or more docs in the collection
-	// Returns a field of the randomly read doc
-	const getRandomDocument = async (collection, field) => {
-		let datasetsRef = db.collection(collection);
-
-		let random = datasetsRef.doc().id;
-
-		let query_a = datasetsRef
-			.where("__name__", ">=", random)
-			.orderBy("__name__")
-			.limit(1);
-
-		let query_b = datasetsRef
-			.where("__name__", "<=", random)
-			.orderBy("__name__")
-			.limit(1);
-
-		let querySnapshot = await query_a.get().catch((error) => {
-			console.log("Error getting documents: ", error);
-		});
-
-		if (querySnapshot.empty) {
-			querySnapshot = await query_b.get().catch((error) => {
-				console.log("Error getting documents: ", error);
-			});
-		}
-
-		return querySnapshot.docs[0].id;
-	};
-
 	// Get a doc where the field does not equal the existing value and return the field of that doc
 	// TODO: Only guaranteed to work when field == __name__ and more than 2 docs are in the collection
 	const getOtherDoc = async (collection, field, value) => {
@@ -234,23 +252,8 @@ export default function Mark() {
 		return otherValues;
 	}, []);
 
-	// Read n random docs in a given collection and return the given doc fields
-	const getRandomDocs = useCallback(async (collection, field, n) => {
-		var promises = [];
-
-		for (let i = 0; i < n; i++) {
-			promises.push(getRandomDocument(collection, field));
-		}
-
-		let randomIds = await Promise.all(promises).catch((e) => {
-			alert("Error getting random docs from database");
-		});
-
-		return randomIds;
-	}, []);
-
+	// Get number of submissions
 	useEffect(() => {
-		// Get number of submissions
 		let db_ref = db.collection("ink");
 
 		db_ref
@@ -273,11 +276,7 @@ export default function Mark() {
 			let doc_ids;
 
 			if (collection === "datasets") {
-				doc_ids = await getRandomDocs(collection, field, 5).catch(
-					(error) => {
-						alert(error);
-					}
-				);
+				doc_ids = getNRandomDatasetIds(5);
 			} else {
 				// Get 5 least used comparison ids
 				let querySnapshot = await db
@@ -295,31 +294,24 @@ export default function Mark() {
 				});
 			}
 
-			let other_ids = await getOtherDocs(
-				collection,
-				field,
-				doc_ids
-			).catch((error) => {
-				alert(error);
-			});
+			let other_ids;
+
+			if (collection === "datasets") {
+				other_ids = getOtherDatasetIds(doc_ids);
+			} else {
+				other_ids = await getOtherDocs(
+					collection,
+					field,
+					doc_ids
+				).catch((error) => {
+					alert(error);
+				});
+			}
 
 			let comparisonIds = [];
 			for (let i = 0; i < doc_ids.length; i++) {
 				comparisonIds.push(doc_ids[i]);
 				comparisonIds.push(other_ids[i]);
-			}
-
-			// Only needed if the doc id is not the thing we need
-			if (collection === "datasets") {
-				let promises = [];
-
-				comparisonIds.forEach((id) => {
-					promises.push(getDocField(collection, id, "name"));
-				});
-
-				comparisonIds = await Promise.all(promises).catch((err) => {
-					alert(err);
-				});
 			}
 
 			setComparisonIds(comparisonIds);
@@ -335,14 +327,17 @@ export default function Mark() {
 			setComparisonReponses(responses);
 		};
 
-		if (submissions !== null) {
-			if (submissions < 5) {
-				getAlternateDocs("datasets", "name");
-			} else {
-				getAlternateDocs("user_responses", "__name__");
-			}
-		}
-	}, [getRandomDocs, getOtherDocs, submissions]);
+		// if (submissions !== null) {
+		// 	if (submissions < 5) {
+		// 		getAlternateDocs("datasets", "name");
+		// 	} else {
+		// 		getAlternateDocs("user_responses", "__name__");
+		// 	}
+		// }
+
+		// Force app to load dataset images
+		getAlternateDocs("datasets", "name");
+	}, [getOtherDocs, getNRandomDatasetIds, getOtherDatasetIds, submissions]);
 
 	// Hook to get the ink submissions for the 4 point scale
 	// When rendering dataset, randomly selects 5 images from the dataset
@@ -352,9 +347,7 @@ export default function Mark() {
 			let ids;
 
 			if (collection === "datasets") {
-				ids = await getRandomDocs(collection, field, 5).catch((error) =>
-					alert(error)
-				);
+				ids = getNRandomDatasetIds(5);
 			} else {
 				let querySnapshot = await db
 					.collection(collection)
@@ -370,19 +363,6 @@ export default function Mark() {
 				});
 			}
 
-			// Only needed if the doc id is not the thing we need
-			if (collection === "datasets") {
-				let promises = [];
-
-				ids.forEach((id) => {
-					promises.push(getDocField(collection, id, "name"));
-				});
-
-				ids = await Promise.all(promises).catch((err) => {
-					alert(err);
-				});
-			}
-
 			console.log("4 point ids", ids);
 			setFourPointIds(ids);
 
@@ -395,14 +375,17 @@ export default function Mark() {
 			setFourPointResponses(responses);
 		};
 
-		if (submissions !== null) {
-			if (submissions < 5) {
-				getIds("datasets", "name");
-			} else {
-				getIds("user_responses", "__name__");
-			}
-		}
-	}, [submissions, getRandomDocs]);
+		// if (submissions !== null) {
+		// 	if (submissions < 5) {
+		// 		getIds("datasets", "name");
+		// 	} else {
+		// 		getIds("user_responses", "__name__");
+		// 	}
+		// }
+
+		// Force app to load dataset images
+		getIds("datasets", "name");
+	}, [submissions, getNRandomDatasetIds]);
 
 	const renderSurveyQuestion = () => {
 		if (comparisonIds.length === 0 || fourPointIds.length === 0) {
