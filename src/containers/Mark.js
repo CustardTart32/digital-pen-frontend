@@ -111,13 +111,16 @@ export default function Mark() {
 		console.log("Submitting");
 		setSubmitting(true);
 
-		if (submissions !== null) {
-			if (submissions < 5) {
-				updateDatabase("dataset_responses");
-			} else {
-				updateDatabase("user_responses");
-			}
-		}
+		// if (submissions !== null) {
+		// 	if (submissions < 5) {
+		// 		updateDatabase("dataset_responses");
+		// 	} else {
+		// 		updateDatabase("user_responses");
+		// 	}
+		// }
+
+		// Force dataset update
+		updateDatabase("dataset_responses");
 	};
 
 	const updateDatabase = (collection) => {
