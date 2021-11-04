@@ -36,7 +36,7 @@ export default function Home() {
 					of handwriting legibility assessment.
 				</Typography>
 			</Grid>
-			{/* <Grid item>
+			<Grid item>
 				<Link
 					to="/consent/canvas"
 					style={{ textDecoration: "none", color: "inherit" }}
@@ -45,7 +45,7 @@ export default function Home() {
 						Submit Your Handwriting
 					</Button>
 				</Link>
-			</Grid> */}
+			</Grid>
 			<Grid item>
 				<Link
 					to="/consent/mark"

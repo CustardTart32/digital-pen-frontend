@@ -111,16 +111,16 @@ export default function Mark() {
 		console.log("Submitting");
 		setSubmitting(true);
 
-		// if (submissions !== null) {
-		// 	if (submissions < 5) {
-		// 		updateDatabase("dataset_responses");
-		// 	} else {
-		// 		updateDatabase("user_responses");
-		// 	}
-		// }
+		if (submissions !== null) {
+			if (submissions < 5) {
+				updateDatabase("dataset_responses");
+			} else {
+				updateDatabase("user_responses");
+			}
+		}
 
 		// Force dataset update
-		updateDatabase("dataset_responses");
+		// updateDatabase("dataset_responses");
 	};
 
 	const updateDatabase = (collection) => {
@@ -256,20 +256,20 @@ export default function Mark() {
 	}, []);
 
 	// Get number of submissions
-	// useEffect(() => {
-	// 	let db_ref = db.collection("ink");
+	useEffect(() => {
+		let db_ref = db.collection("ink");
 
-	// 	db_ref
-	// 		.get()
-	// 		.then((querySnapshot) => {
-	// 			console.log("Amount of submissions", querySnapshot.size);
-	// 			setSubmissions(querySnapshot.size);
-	// 		})
-	// 		.catch((err) => {
-	// 			console.log(err);
-	// 			setSubmissions(0);
-	// 		});
-	// }, []);
+		db_ref
+			.get()
+			.then((querySnapshot) => {
+				console.log("Amount of submissions", querySnapshot.size);
+				setSubmissions(querySnapshot.size);
+			})
+			.catch((err) => {
+				console.log(err);
+				setSubmissions(0);
+			});
+	}, []);
 
 	// Hook to generate 5 random docs with 5 alternate docs as well for comparison survey questions
 	// Takes in a collection and field to query on
@@ -330,16 +330,16 @@ export default function Mark() {
 			setComparisonReponses(responses);
 		};
 
-		// if (submissions !== null) {
-		// 	if (submissions < 5) {
-		// 		getAlternateDocs("datasets", "name");
-		// 	} else {
-		// 		getAlternateDocs("user_responses", "__name__");
-		// 	}
-		// }
+		if (submissions !== null) {
+			if (submissions < 5) {
+				getAlternateDocs("datasets", "name");
+			} else {
+				getAlternateDocs("user_responses", "__name__");
+			}
+		}
 
 		// Force app to load dataset images
-		getAlternateDocs("datasets", "name");
+		// getAlternateDocs("datasets", "name");
 	}, [getOtherDocs, getNRandomDatasetIds, getOtherDatasetIds, submissions]);
 
 	// Hook to get the ink submissions for the 4 point scale
@@ -378,16 +378,16 @@ export default function Mark() {
 			setFourPointResponses(responses);
 		};
 
-		// if (submissions !== null) {
-		// 	if (submissions < 5) {
-		// 		getIds("datasets", "name");
-		// 	} else {
-		// 		getIds("user_responses", "__name__");
-		// 	}
-		// }
+		if (submissions !== null) {
+			if (submissions < 5) {
+				getIds("datasets", "name");
+			} else {
+				getIds("user_responses", "__name__");
+			}
+		}
 
 		// Force app to load dataset images
-		getIds("datasets", "name");
+		// getIds("datasets", "name");
 	}, [submissions, getNRandomDatasetIds]);
 
 	const renderSurveyQuestion = () => {
