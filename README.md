@@ -2,6 +2,14 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Overview
+
+Digital Pen is an online survey that: 
+- Collects handwriting from a digital stylus for academic research. 
+- Allows users to provide their assessment on the legibility of provided handwritten samples via a Four Point Survey and A/B Comparision.
+
+These digital ink samples are then analysed to determine the possiblity of developing a digital handwriting legibility assessment that does not require specialised assessment. ([Link to Data Analysis](https://github.com/CustardTart32/digital-pen-backend)) 
+
 ## Available Scripts
 
 In the project directory, you can run:
